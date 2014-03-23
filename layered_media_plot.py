@@ -1,5 +1,6 @@
+multiplier = 1
 from matplotlib import rc
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica Neue']})
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica Neue'],'size': 15*multiplier})
 rc('text', usetex=True)
 
 from matplotlib import font_manager
@@ -97,7 +98,7 @@ yy = np.load('y'+str(skip)+'.npy')
 yfrac = yy-np.floor(yy)
 mat = yfrac>0.5
 
-fig = plt.figure(1,figsize=(10,10))
+fig = plt.figure(1,figsize=(10*multiplier,10*multiplier))
 rect = fig.patch
 rect.set_facecolor('#333333')
 
@@ -167,9 +168,9 @@ for i,p in enumerate([p,pc,pz,pcz]):
 
     # x-slice
     axx.append(plt.axes(xframe[i], frameon=True, axisbg='#DDDDDD'))
-    axx[-1].grid(color='w', linewidth=2, linestyle='solid',alpha=0.4)
+    axx[-1].grid(color='w', linewidth=2*multiplier, linestyle='solid',alpha=0.4)
     axx[-1].set_axisbelow(True)
-    axx[-1].plot(on_right[i]*xx[:,0],p[:,0],'-r',lw=2,alpha=0.8)
+    axx[-1].plot(on_right[i]*xx[:,0],p[:,0],'-r',lw=2*multiplier,alpha=0.8)
     axx[-1].yaxis.set_major_locator(plt.MaxNLocator(nbins=5))
     axx[-1].set_yticklabels([])
     if on_right[i] == -1:
@@ -191,18 +192,17 @@ for i,p in enumerate([p,pc,pz,pcz]):
     elif i == 3:
         D = scipy.io.loadmat('cz-disp.mat')
     if i>0:
-        nt = frame[i]/0.5+1
-        phom = D['U'][nt,:,:]
+        phom = D['U']
         mx = D['mx']
         x  = np.squeeze(D['x'])[mx/2:]-100
         xslice = np.squeeze(phom[mx/2,mx/2:])
-        axx[i].plot(on_right[i]*x,xslice,'--k',lw=2)
+        axx[i].plot(on_right[i]*x,xslice,'--k',lw=2*multiplier,alpha=0.5)
 
     # y-slice
     axy.append(plt.axes(yframe[i],frameon=True, axisbg='#DDDDDD'))
-    axy[-1].grid(color='w', linewidth=2, linestyle='solid',alpha=0.4)
+    axy[-1].grid(color='w', linewidth=2*multiplier, linestyle='solid',alpha=0.4)
     axy[-1].set_axisbelow(True)
-    axy[-1].plot(on_right[i]*p[0,:],on_top[i]*yy[0,:],'-r',lw=2,alpha=0.8)
+    axy[-1].plot(on_right[i]*p[0,:],on_top[i]*yy[0,:],'-r',lw=2*multiplier,alpha=0.8)
     axy[-1].xaxis.set_major_locator(plt.MaxNLocator(nbins=5))
     axy[-1].set_xticklabels([])
     if on_top[i] == -1:
@@ -220,7 +220,7 @@ for i,p in enumerate([p,pc,pz,pcz]):
         my = D['my']
         y  = np.squeeze(D['y'])[my/2:]-100
         yslice = np.squeeze(phom[my/2:,my/2])
-        axy[i].plot(on_right[i]*yslice,on_top[i]*y,'--k',lw=2)
+        axy[i].plot(on_right[i]*yslice,on_top[i]*y,'--k',lw=2*multiplier)
 
 
     # dispersion relation
@@ -228,12 +228,23 @@ for i,p in enumerate([p,pc,pz,pcz]):
     axd[-1].yaxis.set_major_locator(plt.NullLocator())
     axd[-1].xaxis.set_major_locator(plt.NullLocator())
     c = sound_speed(kkx,kky,i)
-    plt.pcolormesh(on_right[i]*kkx,on_top[i]*kky,c,cmap='RdGy_r')
+
+    c = c
+    if on_right[i] == -1:
+        c = np.fliplr(c)
+    if on_top[i] == -1:
+        c = np.flipud(c)
     if i == 0:
-        plt.clim(0.9,1.1)
-    elif i == 1:
-        axd[-1].text(0.5,1.02,'$k_x$',color='w',fontsize=15,transform=axd[-1].transAxes,verticalalignment='bottom',horizontalalignment='center')
-        axd[-1].text(1.08,0.5,'$k_y$',color='w',fontsize=15,transform=axd[-1].transAxes,verticalalignment='center',horizontalalignment='left')
+        plt.imshow(c, cmap='RdGy_r',interpolation='nearest',origin='lower',vmax=1.1,vmin=0.9)
+    else:
+        plt.imshow(c, cmap='RdGy_r',interpolation='nearest',origin='lower')
+
+    #plt.pcolormesh(on_right[i]*kkx,on_top[i]*kky,c,cmap='RdGy_r')
+    #if i == 0:
+    #    plt.clim(0.9,1.1)
+    if i == 1:
+        axd[-1].text(0.5,1.02,'$k_x$',color='w',fontsize=15*multiplier,transform=axd[-1].transAxes,verticalalignment='bottom',horizontalalignment='center')
+        axd[-1].text(1.08,0.5,'$k_y$',color='w',fontsize=15*multiplier,transform=axd[-1].transAxes,verticalalignment='center',horizontalalignment='left')
     elif i == 3:
         from mpl_toolkits.axes_grid1 import make_axes_locatable
         divider = make_axes_locatable(axd[-1])
@@ -300,21 +311,15 @@ axins = zoomed_inset_axes(axmain[2],6,loc=1)
 yfrac = yy-np.floor(yy)
 mat = yfrac>0.5
 
-axins.imshow(mat.T,vmin=-0.5, vmax=1.5, extent=[55,60,55,60],interpolation='nearest',origin='lower',cmap='binary',alpha=0.8)
-#plt.pcolormesh(xx,yy,mat,cmap='bone')
-#plt.clim([-1.5,1.5])
-#axins.set_xlim(-10,-20)
-#axins.set_ylim(-10,-20)
-#axins.set_xlim(80,90)
-#axins.set_ylim(80,90)
+axins.imshow(mat[:80,:320].T,vmin=-0.5, vmax=1.5, extent=[55,60,55,60],interpolation='nearest',origin='lower',cmap='binary',alpha=0.8)
 axins.xaxis.set_major_locator(nullloc)
 axins.yaxis.set_major_locator(nullloc)
 mark_inset(axmain[2],axins,2,4,fc='none',ec='0.5')
 
-plt.suptitle('Acoustic wave propagation in layered periodic media',fontsize=25,color='#EEEEEE')
-plt.figtext(0.5,0.05,'Units scaled to medium period', fontsize=15, horizontalalignment='center',color='#EEEEEE')
-plt.figtext(0.5,0.075,'$x$', fontsize=25, horizontalalignment='center',color='#EEEEEE')
-plt.figtext(0.05,0.5,'$y$', fontsize=25, verticalalignment='center',color='#EEEEEE')
+plt.suptitle('Acoustic wave propagation in layered periodic media',fontsize=25*multiplier,color='#EEEEEE')
+plt.figtext(0.5,0.05,'Units scaled to medium period', fontsize=15*multiplier, horizontalalignment='center',color='#EEEEEE')
+plt.figtext(0.5,0.075,'$x$', fontsize=25*multiplier, horizontalalignment='center',color='#EEEEEE')
+plt.figtext(0.05,0.5,'$y$', fontsize=25*multiplier, verticalalignment='center',color='#EEEEEE')
 
-plt.savefig('_dispersion.png',dpi=100, facecolor=fig.get_facecolor(), edgecolor='none')
+plt.savefig('_dispersion.pdf',dpi=500, facecolor=fig.get_facecolor(), edgecolor='none')
 plt.close()
