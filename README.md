@@ -7,4 +7,6 @@ After submitting this entry, I reran some of the simulations and created nicer p
 The improved plots can be found in the paper, at http://arxiv.org/abs/1309.6666.  The improved data
 and scripts can be found in the reproducibility repo linked above.
 
+The final version of the figure (used in the paper) is below.
 
+![](dispersion_io.pdf)
