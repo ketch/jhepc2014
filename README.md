@@ -9,4 +9,4 @@ and scripts can be found in the reproducibility repo linked above.
 
 The final version of the figure (used in the paper) is below.
 
-![](dispersion_io.pdf)
+![](dispersion_io.png)
